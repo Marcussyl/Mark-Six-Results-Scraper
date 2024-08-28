@@ -24,37 +24,39 @@ const puppeteer = require("puppeteer");
 //     await browser.close();
 // })();
 
-(async() => {
-    const browser = await puppeteer.launch({
-        headless: true,
+(async () => {
+  const browser = await puppeteer.launch({
+    headless: true,
+  });
+  const page = await browser.newPage();
+
+  // Navigate to the website
+  await page.goto("https://bet.hkjc.com/ch/marksix/results");
+
+  // Scrape the alt values of the images in the "table-row sec" divs
+  const altValues = await page.evaluate(() => {
+    const tableRows = document.querySelectorAll(
+      ".maraksx-results-table-noprint .table-row"
+    );
+    const results = {};
+
+    tableRows.forEach((row, index) => {
+      const images = row.querySelectorAll(".img-box img");
+      console.log(images.length);
+      const result = [];
+      images.forEach((image) => {
+        result.push(image.alt);
+      });
+      results[index + 1] = result;
     });
-    const page = await browser.newPage();
 
-    // Navigate to the website
-    await page.goto("https://bet.hkjc.com/ch/marksix/results");
+    return results;
+  });
 
-    // Scrape the alt values of the images in the "table-row sec" divs
-    const altValues = await page.evaluate(() => {
-        const tableRows = document.querySelectorAll(".table-row.sec");
-        const results = {};
+  // Log the alt values
+  console.log(altValues);
 
-        tableRows.forEach((row, index) => {
-            const images = row.querySelectorAll(".img-box img");
-            console.log(images);
-            const result = [];
-            images.forEach((image) => {
-                result.push(image.alt);
-            });
-            results[index + 1] = result;
-        });
-
-        return results;
-    });
-
-    // Log the alt values
-    console.log(altValues);
-
-    await browser.close();
+  await browser.close();
 })();
 
 // (async() => {
