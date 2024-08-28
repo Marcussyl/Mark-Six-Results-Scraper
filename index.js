@@ -1,92 +1,53 @@
+const express = require("express");
 const puppeteer = require("puppeteer");
 
-// (async() => {
-//     // Launch a new browser instance
-//     const browser = await puppeteer.launch({
-//         headless: true,
-//     });
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-//     // Create a new page
-//     const page = await browser.newPage();
+// Define the endpoint to scrape data
+app.get("/api/marksix", async (req, res) => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: true,
+    });
+    const page = await browser.newPage();
 
-//     // Navigate to the target website
-//     await page.goto("https://bet.hkjc.com/ch/marksix/results");
-
-//     // Extract the page title
-//     const pageTitle = await page.title();
-//     console.log("Page Title:", pageTitle);
-
-//     // Extract the page content
-//     const pageContent = await page.content();
-//     console.log("Page Content:", pageContent);
-
-//     // Close the browser
-//     await browser.close();
-// })();
-
-(async () => {
-  const browser = await puppeteer.launch({
-    headless: true,
-  });
-  const page = await browser.newPage();
-
-  // Navigate to the website
-  await page.goto("https://bet.hkjc.com/ch/marksix/results");
-
-  // Scrape the alt values of the images in the "table-row sec" divs
-  const altValues = await page.evaluate(() => {
-    const tableRows = document.querySelectorAll(
-      ".maraksx-results-table-noprint .table-row"
-    );
-    const results = {};
-
-    tableRows.forEach((row, index) => {
-      const images = row.querySelectorAll(".img-box img");
-      console.log(images.length);
-      const result = [];
-      images.forEach((image) => {
-        result.push(image.alt);
-      });
-      results[index + 1] = result;
+    // Navigate to the website
+    await page.goto("https://bet.hkjc.com/ch/marksix/results", {
+      waitUntil: "networkidle2", // Wait for the network to be idle
     });
 
-    return results;
-  });
+    // Scrape the alt values of the images in the "table-row sec" divs
+    const markSixResults = await page.evaluate(() => {
+      const tableRows = document.querySelectorAll(
+        ".maraksx-results-table-noprint .table-row"
+      );
+      const results = {};
 
-  // Log the alt values
-  console.log(altValues);
+      tableRows.forEach((row) => {
+        const images = row.querySelectorAll(".img-box img");
+        const key = row.querySelector(".cell-id a").textContent;
+        const result = [];
+        images.forEach((image) => {
+          result.push(image.alt);
+        });
+        results[key] = result;
+      });
 
-  await browser.close();
-})();
+      return results;
+    });
 
-// (async() => {
-//     const browser = await puppeteer.launch({
-//         headless: true,
-//     });
-//     const page = await browser.newPage();
-//     await page.goto("https://bet.hkjc.com/ch/marksix/results");
+    await browser.close();
 
-//     const altValues = {};
-//     const tableRows = page.$$eval(".table-row.sec", (rows) =>
-//         rows.map((row, index) => {
-//             const altValues = Array.from(row.querySelectorAll("img")).map((img) =>
-//                 img.getAttribute("alt")
-//             );
-//             return { index: index + 1, altValues };
-//         })
-//     );
+    // Send the scraped data as a JSON response
+    res.json(markSixResults);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error scraping data");
+  }
+});
 
-//     tableRows.forEach(({ index, altValues }) => {
-//         altValues.forEach((alt) => {
-//             if (!altValues[index]) {
-//                 altValues[index] = [alt];
-//             } else {
-//                 altValues[index].push(alt);
-//             }
-//         });
-//     });
-
-//     console.log(altValues);
-
-//     await browser.close();
-// })();
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
