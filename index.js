@@ -5,7 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Define the endpoint to scrape data
-app.get("/api/marksix", async (req, res) => {
+app.get("/", async (req, res) => {
   try {
     const browser = await puppeteer.launch({
       headless: true,
