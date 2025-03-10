@@ -1,6 +1,6 @@
-const express = require("express");
-const puppeteer = require("puppeteer");
-const cors = require("cors"); // Add CORS support
+import express from "express";
+import puppeteer from "puppeteer";
+import cors from "cors"
 
 const app = express();
 app.use(cors()); // Enable CORS
@@ -12,16 +12,34 @@ let cache = {
     timestamp: null
 };
 
+
+// This route handles the GET request for the root URL ("/").
+// It returns a JSON response with a message instructing the user to request "/mark-six-results" to retrieve the 10 latest Mark Six results.
 app.get("/", async (req, res) => {
+    try {
+        const message = "Request /mark-six-results to retrieve the 10 latest Mark Six results";
+        res.json({ message });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "An unexpected error occurred."
+        });
+    }
+});
+
+// This route handles the GET request for the "/mark-six-results" endpoint.
+// It scrapes the latest Mark Six results from the website and returns them as a JSON response.
+// The results are cached for a specified duration to minimize repeated scraping and improve performance.
+app.get("/mark-six-results", async (req, res) => {
     try {
         // Check cache first
         if (cache.data && cache.timestamp && (Date.now() - cache.timestamp < CACHE_DURATION)) {
-            return res.json(cache.data);
+            return drawResults.json(cache.data);
         }
 
         const browser = await puppeteer.launch({
             args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for some hosting platforms
-            headless: "new" // Use new headless mode
+            headless: true // Use new headless mode
         });
         const page = await browser.newPage();
 
@@ -33,63 +51,54 @@ app.get("/", async (req, res) => {
             waitUntil: ["networkidle2", "domcontentloaded"], // Wait for both conditions
         });
 
-        // Add error handling for selector
-        await page.waitForSelector(".maraksx-results-table-noprint .table-row");
+        // table row selector
+        const tableRowSelector = '.maraksx-results-table-noprint .table-row';
+        await page.waitForSelector(tableRowSelector);
 
-        const markSixResults = await page.evaluate(() => {
-            const tableRows = document.querySelectorAll(
-                ".maraksx-results-table-noprint .table-row"
-            );
-            const results = {};
-
-            tableRows.forEach((row) => {
-                try {
-                    const idElement = row.querySelector(".cell-id a");
-                    if (!idElement) return; // Skip if no ID element
-
-                    const key = idElement.textContent.trim();
-                    const images = row.querySelectorAll(".img-box img");
-                    const result = Array.from(images).map(img => img.alt).filter(Boolean);
-                    
-                    if (key && result.length > 0) {
-                        results[key] = result;
-                    }
-                } catch (err) {
-                    console.error('Error processing row:', err);
+        // extraction starts
+        const drawResults = await page.evaluate(tableRowSelector => {
+            const tableRowsHtml = Array.from(document.querySelectorAll(tableRowSelector));
+            const res = []
+            for (let row of tableRowsHtml) {
+                // find draw id
+                const id = row.querySelector('.cell-id a').innerHTML;
+        
+                // find draw result
+                const result = [];
+                const resultImgs = row.querySelectorAll('.cell-ball-list .img-box img')
+                for (let img of resultImgs) {
+                    result.push(img.getAttribute('alt'));
                 }
-            });
-
-            return results;
-        });
+        
+                // combine draw id and result for each draw
+                const temp = {
+                    id: id,
+                    results: result
+                }
+                
+                res.push(temp);
+            }
+            return res;
+        }, tableRowSelector);
 
         await browser.close();
 
         // Update cache
         cache = {
-            data: markSixResults,
+            data: drawResults,
             timestamp: Date.now()
         };
 
-        res.json(markSixResults);
+        console.log(JSON.stringify(drawResults));
+        res.json(drawResults)
     } catch (error) {
         console.error("Scraping error:", error);
-        
-        // Return cached data if available on error
-        if (cache.data) {
-            console.log("Returning cached data due to error");
-            return res.json(cache.data);
-        }
         
         res.status(500).json({
             error: "Error scraping data",
             message: error.message
         });
     }
-});
-
-// Add health check endpoint
-app.get("/health", (req, res) => {
-    res.status(200).json({ status: "ok" });
 });
 
 const PORT = process.env.PORT || 3000;
