@@ -1,6 +1,7 @@
 import express from "express";
 import puppeteer from "puppeteer";
 import cors from "cors"
+import ServerlessHttp from "serverless-http";
 
 const app = express();
 app.use(cors()); // Enable CORS
@@ -101,13 +102,4 @@ app.get("/mark-six-results", async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
-
-// Handle process termination
-process.on('SIGTERM', () => {
-    console.log('SIGTERM received. Shutting down gracefully');
-    process.exit(0);
-});
+export const handler = ServerlessHttp(app);
