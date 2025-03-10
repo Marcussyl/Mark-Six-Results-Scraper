@@ -1,6 +1,7 @@
 import express from "express";
-import puppeteer from "puppeteer";
+import puppeteer from 'puppeteer-core';
 import cors from "cors"
+import chromium from '@sparticuz/chromium';
 
 const app = express();
 app.use(cors()); // Enable CORS
@@ -37,10 +38,13 @@ app.get("/mark-six-results", async (req, res) => {
             return drawResults.json(cache.data);
         }
 
+        console.log("Launching browser...");
         const browser = await puppeteer.launch({
+            executablePath: await chromium.executablePath(),
             args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for some hosting platforms
             headless: true // Use new headless mode
         });
+        console.log("Creating new page...");
         const page = await browser.newPage();
 
         // Add timeout and error handling
