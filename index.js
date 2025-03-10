@@ -1,7 +1,7 @@
 import express from "express";
 import puppeteer from "puppeteer";
 import cors from "cors"
-import ServerlessHttp from "serverless-http";
+import serverless from "serverless-http";
 
 const app = express();
 app.use(cors()); // Enable CORS
@@ -16,7 +16,7 @@ let cache = {
 
 // This route handles the GET request for the root URL ("/").
 // It returns a JSON response with a message instructing the user to request "/mark-six-results" to retrieve the 10 latest Mark Six results.
-app.get("/", async (req, res) => {
+app.get("/", async(req, res) => {
     try {
         const message = "Request /mark-six-results to retrieve the 10 latest Mark Six results";
         res.json({ message });
@@ -31,7 +31,7 @@ app.get("/", async (req, res) => {
 // This route handles the GET request for the "/mark-six-results" endpoint.
 // It scrapes the latest Mark Six results from the website and returns them as a JSON response.
 // The results are cached for a specified duration to minimize repeated scraping and improve performance.
-app.get("/mark-six-results", async (req, res) => {
+app.get("/mark-six-results", async(req, res) => {
     try {
         // Check cache first
         if (cache.data && cache.timestamp && (Date.now() - cache.timestamp < CACHE_DURATION)) {
@@ -63,20 +63,20 @@ app.get("/mark-six-results", async (req, res) => {
             for (let row of tableRowsHtml) {
                 // find draw id
                 const id = row.querySelector('.cell-id a').innerHTML;
-        
+
                 // find draw result
                 const result = [];
                 const resultImgs = row.querySelectorAll('.cell-ball-list .img-box img')
                 for (let img of resultImgs) {
                     result.push(img.getAttribute('alt'));
                 }
-        
+
                 // combine draw id and result for each draw
                 const temp = {
                     id: id,
                     results: result
                 }
-                
+
                 res.push(temp);
             }
             return res;
@@ -94,7 +94,7 @@ app.get("/mark-six-results", async (req, res) => {
         res.json(drawResults)
     } catch (error) {
         console.error("Scraping error:", error);
-        
+
         res.status(500).json({
             error: "Error scraping data",
             message: error.message
@@ -102,4 +102,4 @@ app.get("/mark-six-results", async (req, res) => {
     }
 });
 
-export const handler = ServerlessHttp(app);
+export const handler = serverless(app);
