@@ -21,7 +21,7 @@ This project is an Express server that scrapes the latest Mark Six results from 
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/Marcussyl/puppeteer-server.git
+    git clone https://github.com/Marcussyl/Mark-Six-Results-Scraper.git
     cd puppeteer-server
     ```
 
