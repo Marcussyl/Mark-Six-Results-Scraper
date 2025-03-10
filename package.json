@@ -8,21 +8,17 @@
     "start": "node ./index.js",
     "build": "npx webpack"
   },
-  "keywords": [
-    "web scraping",
-    "mark six result",
-    "mark six"
-  ],
-  "author": "Marcus",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
-  "description": "This project is an Express server that scrapes the latest Mark Six results from the Hong Kong Jockey Club's website and returns the results as JSON. The server also includes simple caching to minimize repeated scraping and improve performance.",
+  "description": "",
   "dependencies": {
-    "@sparticuz/chromium": "^133.0.0",
+    "@vercel/analytics": "^1.5.0",
     "bufferutil": "^4.0.8",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "jsdom": "^26.0.0",
     "puppeteer": "^23.2.0",
-    "puppeteer-core": "^24.4.0",
     "utf-8-validate": "^6.0.4"
   },
   "devDependencies": {
