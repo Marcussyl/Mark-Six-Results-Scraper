@@ -5,11 +5,11 @@ const serverless = require('serverless-http');
 const app = express();
 
 // Add simple caching
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-let cache = {
-    data: null,
-    timestamp: null
-};
+// const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+// let cache = {
+//     data: null,
+//     timestamp: null
+// };
 
 // This route handles the GET request for the "/mark-six-results" endpoint.
 // It scrapes the latest Mark Six results from the website and returns them as a JSON response.
@@ -17,9 +17,9 @@ let cache = {
 app.get("/", async(req, res) => {
     try {
         // Check cache first
-        if (cache.data && cache.timestamp && (Date.now() - cache.timestamp < CACHE_DURATION)) {
-            return res.json(cache.data);
-        }
+        // if (cache.data && cache.timestamp && (Date.now() - cache.timestamp < CACHE_DURATION)) {
+        //     return res.json(cache.data);
+        // }
 
         const browser = await puppeteer.launch({
             args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for some hosting platforms
@@ -68,10 +68,10 @@ app.get("/", async(req, res) => {
         await browser.close();
 
         // Update cache
-        cache = {
-            data: drawResults,
-            timestamp: Date.now()
-        };
+        // cache = {
+        //     data: drawResults,
+        //     timestamp: Date.now()
+        // };
 
         console.log(JSON.stringify(drawResults));
         res.json(drawResults)
