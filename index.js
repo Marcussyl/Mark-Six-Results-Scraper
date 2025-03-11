@@ -1,7 +1,7 @@
-import express from "express";
-import puppeteer from "puppeteer";
-import cors from "cors"
-import serverless from "serverless-http";
+const express = require('express');
+const puppeteer = require('puppeteer');
+const cors = require('cors');
+const serverless = require('serverless-http');
 
 const app = express();
 app.use(cors()); // Enable CORS
@@ -13,25 +13,10 @@ let cache = {
     timestamp: null
 };
 
-
-// This route handles the GET request for the root URL ("/").
-// It returns a JSON response with a message instructing the user to request "/mark-six-results" to retrieve the 10 latest Mark Six results.
-app.get("/", async(req, res) => {
-    try {
-        const message = "Request /mark-six-results to retrieve the 10 latest Mark Six results";
-        res.json({ message });
-    } catch (error) {
-        res.status(500).json({
-            status: "error",
-            message: "An unexpected error occurred."
-        });
-    }
-});
-
 // This route handles the GET request for the "/mark-six-results" endpoint.
 // It scrapes the latest Mark Six results from the website and returns them as a JSON response.
 // The results are cached for a specified duration to minimize repeated scraping and improve performance.
-app.get("/mark-six-results", async(req, res) => {
+app.get("/", async(req, res) => {
     try {
         // Check cache first
         if (cache.data && cache.timestamp && (Date.now() - cache.timestamp < CACHE_DURATION)) {
@@ -102,4 +87,15 @@ app.get("/mark-six-results", async(req, res) => {
     }
 });
 
-export const handler = serverless(app);
+// const PORT = process.env.PORT || 3001;
+// app.listen(PORT, () => {
+//     console.log(`Server is running on http://localhost:${PORT}`);
+// });
+
+const handler = serverless(app);
+module.exports.handler = async (event, context) => {
+  // you can do other things here
+  const result = await handler(event, context);
+  // and here
+  return result;
+};
