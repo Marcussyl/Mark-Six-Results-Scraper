@@ -1,10 +1,8 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
-const cors = require('cors');
 const serverless = require('serverless-http');
 
 const app = express();
-app.use(cors()); // Enable CORS
 
 // Add simple caching
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -20,7 +18,7 @@ app.get("/", async(req, res) => {
     try {
         // Check cache first
         if (cache.data && cache.timestamp && (Date.now() - cache.timestamp < CACHE_DURATION)) {
-            return drawResults.json(cache.data);
+            return res.json(cache.data);
         }
 
         const browser = await puppeteer.launch({
