@@ -14,7 +14,7 @@ const app = express();
 // This route handles the GET request for the "/mark-six-results" endpoint.
 // It scrapes the latest Mark Six results from the website and returns them as a JSON response.
 // The results are cached for a specified duration to minimize repeated scraping and improve performance.
-app.get("/netlify/functions/api", async(req, res) => {
+app.get("/api", async(req, res) => {
     try {
         // Check cache first
         // if (cache.data && cache.timestamp && (Date.now() - cache.timestamp < CACHE_DURATION)) {
