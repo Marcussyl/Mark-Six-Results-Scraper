@@ -1,0 +1,13 @@
+[build]
+    functions = "functions"
+    node_bundler = "esbuild"
+
+[[redirects]]
+    from = "/api"
+    to = "/.netlify/functions/api"
+    status = 200
+
+[[redirects]]
+    from = "/api/mark-six-results"
+    to = "/.netlify/functions/api/mark-six-results"
+    status = 200

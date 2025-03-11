@@ -1,29 +1,21 @@
-const express = require('express');
-const puppeteer = require('puppeteer');
-const serverless = require('serverless-http');
+import ServerlessHttp from "serverless-http";
+import express from "express";
+import puppeteer from "puppeteer";
+import dotenv from 'dotenv'
 
 const app = express();
+dotenv.config();
 
-// Add simple caching
-// const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-// let cache = {
-//     data: null,
-//     timestamp: null
-// };
+app.get('/api', (req, res) => {
+    return res.json({
+        message: "hello world!"
+    })
+})
 
-// This route handles the GET request for the "/mark-six-results" endpoint.
-// It scrapes the latest Mark Six results from the website and returns them as a JSON response.
-// The results are cached for a specified duration to minimize repeated scraping and improve performance.
-app.get("/api", async(req, res) => {
+app.get('/api/mark-six-results', async (req, res) => {
     try {
-        // Check cache first
-        // if (cache.data && cache.timestamp && (Date.now() - cache.timestamp < CACHE_DURATION)) {
-        //     return res.json(cache.data);
-        // }
-
-        const browser = await puppeteer.launch({
-            args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for some hosting platforms
-            headless: true // Use new headless mode
+        const browser = await puppeteer.connect({
+            browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.TOKEN}`,
         });
         const page = await browser.newPage();
 
@@ -66,13 +58,6 @@ app.get("/api", async(req, res) => {
         }, tableRowSelector);
 
         await browser.close();
-
-        // Update cache
-        // cache = {
-        //     data: drawResults,
-        //     timestamp: Date.now()
-        // };
-
         console.log(JSON.stringify(drawResults));
         res.json(drawResults)
     } catch (error) {
@@ -83,17 +68,14 @@ app.get("/api", async(req, res) => {
             message: error.message
         });
     }
-});
+})
 
-// const PORT = process.env.PORT || 3001;
-// app.listen(PORT, () => {
-//     console.log(`Server is running on http://localhost:${PORT}`);
-// });
+// app.listen(3002, () => {
+//     console.log("Listening on port 3002");
+// })
 
-const handler = serverless(app);
+const handler = ServerlessHttp(app);
 module.exports.handler = async (event, context) => {
-  // you can do other things here
-  const result = await handler(event, context);
-  // and here
-  return result;
-};
+    const result = await handler(event, context);
+    return result;
+}
