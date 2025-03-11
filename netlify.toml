@@ -1,0 +1,3 @@
+[build]
+    functions = "/"
+    node_bundler = "webpack"
