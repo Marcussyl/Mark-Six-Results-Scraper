@@ -2,13 +2,17 @@ import ServerlessHttp from "serverless-http";
 import express from "express";
 import puppeteer from "puppeteer";
 import dotenv from 'dotenv'
+import fs from "fs";
 
 const app = express();
+const filePath = "../data.json";
 dotenv.config();
+
+app.use(express.json());
 
 app.get('/api', (req, res) => {
     return res.json({
-        message: "hello world!"
+        message: "Welcome to Mark Six Checker API!"
     })
 })
 
@@ -70,14 +74,38 @@ app.get('/api/mark-six-results', async (req, res) => {
     }
 })
 
-app.get('/api/backupState', (req, res) => {
-    // const draws = req.query.draws;
-    // console.log(`draws: ${draws}`);
+app.post('/api/backupState', (req, res) => {
+    const draws = req.body;
+    console.log(draws);
 
-    return res.status(200).json({
-        message: "all good"
-    })
+    fs.writeFile(filePath, JSON.stringify(draws, null, 2), (err) => {
+      if (err) {
+        console.error("Error writing to file", err);
+        return res.status(500).json({ message: "Error backing up state" });
+      }
+
+      return res.status(200).json({
+        message: "all good",
+      });
+    });
 })
+
+app.get("/api/getState", (req, res) => {
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading file", err);
+      return res.status(500).json({ message: "Error retrieving state" });
+    }
+
+    try {
+      const state = JSON.parse(data);
+      return res.status(200).json(state);
+    } catch (parseError) {
+      console.error("Error parsing JSON", parseError);
+      return res.status(500).json({ message: "Error parsing state data" });
+    }
+  });
+});
 
 // app.listen(3002, () => {
 //     console.log("Listening on port 3002");

@@ -16,3 +16,8 @@
     from = "/api/backupState"
     to = "/.netlify/functions/api/backupState"
     status = 200
+
+[[redirects]]
+    from = "/api/getState"
+    to = "/.netlify/functions/api/getState"
+    status = 200
