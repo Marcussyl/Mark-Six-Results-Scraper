@@ -76,7 +76,7 @@ app.get('/api/backupStates', (req, res) => {
     console.log(`draws: ${draws}`);
     console.log(`releases: ${releases}`);
 
-    res.json({
+    res.status(200).json({
         message: "all good"
     })
 })
