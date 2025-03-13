@@ -78,7 +78,7 @@ app.post('/api/backupState', (req, res) => {
     const draws = req.body;
     console.log(draws);
 
-    fs.writeFile(filePath, JSON.stringify(draws, null, 2), (err) => {
+    fs.writeFile(process.env.FilePath, JSON.stringify(draws, null, 2), (err) => {
       if (err) {
         console.error("Error writing to file", err);
         return res.status(500).json({ message: "Error backing up state" });
@@ -91,7 +91,7 @@ app.post('/api/backupState', (req, res) => {
 })
 
 app.get("/api/getState", (req, res) => {
-  fs.readFile(filePath, "utf8", (err, data) => {
+  fs.readFile(process.env.FilePath, "utf8", (err, data) => {
     if (err) {
       console.error("Error reading file", err);
       return res.status(500).json({ message: "Error retrieving state" });
