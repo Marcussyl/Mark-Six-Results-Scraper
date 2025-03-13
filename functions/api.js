@@ -70,6 +70,17 @@ app.get('/api/mark-six-results', async (req, res) => {
     }
 })
 
+app.get('/api/backupStates', (req, res) => {
+    const draws = req.params.draws;
+    const releases = req.params.releases;
+    console.log(`draws: ${draws}`);
+    console.log(`releases: ${releases}`);
+
+    res.json({
+        message: "all good"
+    })
+})
+
 // app.listen(3002, () => {
 //     console.log("Listening on port 3002");
 // })
