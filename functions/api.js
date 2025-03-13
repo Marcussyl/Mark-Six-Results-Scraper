@@ -70,11 +70,9 @@ app.get('/api/mark-six-results', async (req, res) => {
     }
 })
 
-app.get('/api/backupStates', (req, res) => {
-    const draws = req.params.draws;
-    const releases = req.params.releases;
+app.get('/api/backupState', (req, res) => {
+    const draws = req.query.draws;
     console.log(`draws: ${draws}`);
-    console.log(`releases: ${releases}`);
 
     res.status(200).json({
         message: "all good"
