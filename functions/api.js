@@ -12,6 +12,12 @@ app.get('/api', (req, res) => {
     })
 })
 
+app.get("/api/test", (req, res) => {
+  return res.json({
+    message: "hello world! test",
+  });
+});
+
 app.get('/api/mark-six-results', async (req, res) => {
     try {
         const browser = await puppeteer.connect({
