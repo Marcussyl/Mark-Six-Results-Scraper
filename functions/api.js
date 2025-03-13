@@ -6,7 +6,6 @@ import fs from "fs";
 import path from "path";
 
 const app = express();
-const filePath = path.resolve(__dirname + "/data.json");
 dotenv.config();
 
 app.use(express.json());
@@ -75,38 +74,65 @@ app.get('/api/mark-six-results', async (req, res) => {
     }
 })
 
-app.post('/api/backupState', (req, res) => {
+app.put('/api/backupState', async (req, res) => {
     const draws = req.body;
-    
     console.log(draws);
+    // console.log(process.env.BinUrl);
+    
+    try {
+      const response = await fetch(process.env.BinUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Access-Key": process.env.AccessKey,
+        },
+        body: JSON.stringify(draws),
+      });
 
-    fs.writeFile(filePath, JSON.stringify(draws, null, 2), (err) => {
-      if (err) {
-        console.error("Error writing to file", err);
-        return res.status(500).json({ message: "Error backing up state" });
+      if (!response.ok) {
+        const errorMessage = `Error: ${response.status} ${response.statusText}`;
+        console.error(errorMessage);
+        return res.status(response.status).json({ message: errorMessage });
       }
 
+      const data = await response.json();
+      console.log("Update successful:", data);
       return res.status(200).json({
-        message: "all good",
+        message: "Update successful",
+        data: data,
       });
-    });
+    } catch (error) {
+      console.error("Error updating resource:", error);
+      return res
+        .status(500)
+        .json({ message: "Internal Server Error", error: error.message });
+    }
 })
 
-app.get("/api/getState", (req, res) => {
-  fs.readFile(filePath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading file", err);
-      return res.status(500).json({ message: "Error retrieving state" });
-    }
+app.get("/api/getState", async (req, res) => {
+  try {
+        const response = await fetch(process.env.BinUrl, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Access-Key": process.env.AccessKey,
+          },
+        });
 
-    try {
-      const state = JSON.parse(data);
-      return res.status(200).json(state);
-    } catch (parseError) {
-      console.error("Error parsing JSON", parseError);
-      return res.status(500).json({ message: "Error parsing state data" });
+        // Check if the response is OK (status code 200-299)
+        if (!response.ok) {
+            const errorMessage = `Error: ${response.status} ${response.statusText}`;
+            console.error(errorMessage);
+            return res.status(response.status).json({ message: errorMessage });
+        }
+
+        const data = await response.json();
+        console.log("Data retrieved successfully:", data);
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
-  });
 });
 
 // app.listen(3002, () => {
