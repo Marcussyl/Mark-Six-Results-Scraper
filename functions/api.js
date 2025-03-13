@@ -74,7 +74,7 @@ app.get('/api/backupState', (req, res) => {
     // const draws = req.query.draws;
     // console.log(`draws: ${draws}`);
 
-    res.status(200).json({
+    return res.status(200).json({
         message: "all good"
     })
 })
