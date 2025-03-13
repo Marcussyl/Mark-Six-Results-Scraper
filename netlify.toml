@@ -11,3 +11,8 @@
     from = "/api/mark-six-results"
     to = "/.netlify/functions/api/mark-six-results"
     status = 200
+
+[[redirects]]
+    from = "/api/backupState"
+    to = "/.netlify/functions/api/backupState"
+    status = 200
