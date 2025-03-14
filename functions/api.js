@@ -7,6 +7,7 @@ import path from "path";
 
 const app = express();
 dotenv.config();
+const binUrl = "https://api.jsonbin.io/v3/b/67d30f688960c979a570e782";
 
 app.use(express.json());
 
@@ -76,19 +77,18 @@ app.get('/api/mark-six-results', async (req, res) => {
     }
 })
 
-app.put('/api/backupState', async (req, res) => {
-    const draws = req.body;
-    console.log(draws);
-    // console.log(process.env.BinUrl);
+app.put('/api/backupStates', async (req, res) => {
+    const states = req.body;
+    console.log(states);
     
     try {
-      const response = await fetch(process.env.BinUrl, {
+      const response = await fetch(binUrl, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           "X-Access-Key": process.env.AccessKey,
         },
-        body: JSON.stringify(draws),
+        body: JSON.stringify(states),
       });
 
       if (!response.ok) {
@@ -111,9 +111,9 @@ app.put('/api/backupState', async (req, res) => {
     }
 })
 
-app.get("/api/getState", async (req, res) => {
+app.get("/api/getStates", async (req, res) => {
   try {
-        const response = await fetch(process.env.BinUrl, {
+        const response = await fetch(binUrl, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

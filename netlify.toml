@@ -13,11 +13,11 @@
     status = 200
 
 [[redirects]]
-    from = "/api/backupState"
-    to = "/.netlify/functions/api/backupState"
+    from = "/api/backupStates"
+    to = "/.netlify/functions/api/backupStates"
     status = 200
 
 [[redirects]]
-    from = "/api/getState"
-    to = "/.netlify/functions/api/getState"
+    from = "/api/getStates"
+    to = "/.netlify/functions/api/getStates"
     status = 200
