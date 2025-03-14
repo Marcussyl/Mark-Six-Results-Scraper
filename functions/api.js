@@ -9,7 +9,7 @@ dotenv.config();
 const binUrl = "https://api.jsonbin.io/v3/b/67d30f688960c979a570e782";
 
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
 
 app.get('/api', (req, res) => {
     return res.json({
@@ -137,12 +137,12 @@ app.get("/api/getStates", async (req, res) => {
     }
 });
 
-app.listen(3002, () => {
-    console.log("Listening on port 3002");
-})
+// app.listen(3002, () => {
+//     console.log("Listening on port 3002");
+// })
 
-// const handler = ServerlessHttp(app);
-// module.exports.handler = async (event, context) => {
-//     const result = await handler(event, context);
-//     return result;
-// }
+const handler = ServerlessHttp(app);
+module.exports.handler = async (event, context) => {
+    const result = await handler(event, context);
+    return result;
+}
