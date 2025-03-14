@@ -18,7 +18,7 @@ app.get('/api', (req, res) => {
 
 app.get('/api/mark-six-results', async (req, res) => {
     try {
-        const count = parseInt(req.query.count) || 10;
+        const count = parseInt(req.query.count) || 5;
         const browser = await puppeteer.connect({
             browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.TOKEN}`,
         });
