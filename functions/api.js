@@ -18,6 +18,7 @@ app.get('/api', (req, res) => {
 
 app.get('/api/mark-six-results', async (req, res) => {
     try {
+        const count = parseInt(req.query.count) || 10;
         const browser = await puppeteer.connect({
             browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.TOKEN}`,
         });
@@ -36,7 +37,7 @@ app.get('/api/mark-six-results', async (req, res) => {
         await page.waitForSelector(tableRowSelector);
 
         // extraction starts
-        const drawResults = await page.evaluate(tableRowSelector => {
+        let drawResults = await page.evaluate(tableRowSelector => {
             const tableRowsHtml = Array.from(document.querySelectorAll(tableRowSelector));
             const res = []
             for (let row of tableRowsHtml) {
@@ -63,6 +64,7 @@ app.get('/api/mark-six-results', async (req, res) => {
 
         await browser.close();
         console.log(JSON.stringify(drawResults));
+        drawResults = drawResults.slice(0, count);
         res.json(drawResults)
     } catch (error) {
         console.error("Scraping error:", error);
